@@ -7,6 +7,8 @@ let speedTimer;
 let treatTimer;
 let movement;
 play = true;
+
+
 let coords = [];
 
 
@@ -55,7 +57,7 @@ game = {
     snake.y = game.startY;
     snake.size = game.startSize;
     document.getElementById("score").remove();
-    document.getElementById("snake").remove();
+    document.getElementById("snake-head").remove();
     document.getElementById("treat").remove();
     document.getElementsByClassName("snake-part").remove();
     clearInterval(movement);
@@ -75,7 +77,7 @@ snake = {
   y: game.startY,
 
   move: () => {
-    let s = document.getElementById("snake");
+    let s = document.getElementById("snake-head");
     if (snake.direction == "UP") {
       snake.y += pixelSize;
       snake.draw();
@@ -94,7 +96,8 @@ snake = {
       snake.treat();
       treat.reTreat();
     } else if (snake.x >= game.width || snake.x < 0 || snake.y >= game.height || snake.y < 0) {
-      alert("GAME OVER!");
+      // alert("GAME OVER!");
+      console.log("game over");
       restart();
     }
 
@@ -102,6 +105,7 @@ snake = {
     for (i = 0; i < head; i++) {
       if (coords[i].x == coords[head].x && coords[i].y == coords[head].y) {
         alert("GAME OVER!");
+        console.log("game over");
         // restart(); 
       }
     }
@@ -111,20 +115,16 @@ snake = {
 
 
     // console.log("Snake X: " + snake.x + " Y: " + snake.y);
-    console.log(coords);
+    console.log(coords, head);
   },
   draw: () => {
-    let b = document.getElementById("game");
-    let s = document.getElementById("snake");
-    let sc = document.getElementsByClassName("snake-part");
+    let sp = document.getElementsByClassName("snake-part");
 
-    // s.remove();
-    // draw.snake();
-
-    draw.child();
-    if (sc.length >= snake.size) {
-      sc[0].parentNode.removeChild(sc[0]);
+    draw.snakeBit();
+    if (sp.length >= snake.size) {
+      sp[0].parentNode.removeChild(sp[0]);
     }
+
 
   },
   changeDirection: event => {
@@ -156,7 +156,7 @@ snake = {
   },
   treat: () => {
     snake.size += 1;
-    draw.child();
+    draw.snakeBit();
     draw.updateScore();
   },
   coordinate: (x, y) => {
@@ -213,6 +213,7 @@ draw = {
     document.getElementById("game").appendChild(sc);
     score = 0;
     sc.innerHTML = score;
+
   },
   updateScore: () => {
     let sc = document.getElementById("score");
@@ -242,9 +243,9 @@ draw = {
 
     sc.innerHTML = score;
   },
-  snake: () => {
+  snakeHead: () => {
     let s = document.createElement("div");
-    s.setAttribute("id", "snake");
+    s.setAttribute("id", "snake-head");
     s.setAttribute("style", "position:absolute; z-index:99;");
     s.style.width = pixelSize + "px";
     s.style.height = pixelSize + "px";
@@ -264,19 +265,23 @@ draw = {
     // console.log("Snake drawn!");
   },
 
-  child: () => {
+  snakeBit: () => {
     let s = document.createElement("span");
+    let c = coords.length - 1;
     s.setAttribute("class", "snake-part");
     s.setAttribute("style", "position:absolute;");
     s.style.width = pixelSize + "px";
     s.style.height = pixelSize + "px";
     s.style.background = snake.childColor;
 
-    // s.style.left = snake.x + "px";
-    s.style.left = coords[0].x + "px";
-    // s.style.bottom = snake.y + "px";
-    s.style.bottom = coords[0].y + "px";
     snake.coordinate(snake.x, snake.y);
+
+    // s.style.left = snake.x + "px";
+    s.style.left = coords[c].x + "px";
+    // s.style.bottom = snake.y + "px";
+    s.style.bottom = coords[c].y + "px";
+
+
     document.getElementById("game").appendChild(s);
   },
   treat: () => {
@@ -314,8 +319,8 @@ function Timer(callback, delay) {
     start = new Date();
     window.clearTimeout(timerId);
     timerId = window.setTimeout(callback, remaining);
+    remaining = delay;
   };
-
 }
 
 
@@ -347,7 +352,7 @@ restart = () => {
 initialize = () => {
   draw.game();
   draw.score();
-  draw.snake();
+  draw.snakeHead();
   draw.treat();
   game.start();
   console.log("Initialized!");
