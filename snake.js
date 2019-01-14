@@ -7,7 +7,6 @@ let play;
 let movement;
 let levelTimer;
 let treatTimer;
-let coordsTimer;
 let coords = [];
 
 // GAME VARIABLES AND FUNCTIONS
@@ -90,7 +89,6 @@ game = {
     }
 
     console.log("Level: " + level + " Speed: " + snake.speed);
-
   },
   // Start and stop the game with spacebar
   pause: () => {
@@ -329,8 +327,7 @@ draw = {
       "style",
       "width:auto; margin:0 auto; padding: 0.5rem; margin-top:0.5rem;"
     );
-    ovHowText1.innerHTML =
-      "<strong>JSnake</strong> is a classical snake game.";
+    ovHowText1.innerHTML = "<strong>JSnake</strong> is a classical snake game.";
     document.getElementById("overlay-container").appendChild(ovHowText1);
     // overlay second p
     let ovHowText2 = document.createElement("p");
@@ -376,16 +373,20 @@ draw = {
     document.getElementById("overlay-container").appendChild(ovAbout);
     // Overlay About p
     let ovAbout1 = document.createElement("p");
-    ovAbout1.setAttribute("style", "width:auto; bottom:0; margin:0 auto; padding: 1rem;");
-    ovAbout1.innerHTML =
-      "Made with <strong>Javascript</strong>";
+    ovAbout1.setAttribute(
+      "style",
+      "width:auto; bottom:0; margin:0 auto; padding: 1rem;"
+    );
+    ovAbout1.innerHTML = "Made with <strong>Javascript</strong>";
     document.getElementById("overlay-container").appendChild(ovAbout1);
     // Overlay About a with link
     let ovAbout2 = document.createElement("a");
-    ovAbout2.setAttribute("style", "width:auto; bottom:0; margin:0 auto; padding: 0; text-decoration:none;");
+    ovAbout2.setAttribute(
+      "style",
+      "width:auto; bottom:0; margin:0 auto; padding: 0; text-decoration:none;"
+    );
     ovAbout2.setAttribute("href", "https://github.com/Nyrn");
-    ovAbout2.innerHTML =
-      "<i>by <strong>Nyrn</strong></i>";
+    ovAbout2.innerHTML = "<i>by <strong>Nyrn</strong></i>";
     document.getElementById("overlay-container").appendChild(ovAbout2);
 
     //Displays best score
@@ -537,10 +538,10 @@ levelTimer = new Timer(() => {
 }, snake.timer);
 
 // Removes DOM elements
-Element.prototype.remove = function () {
+Element.prototype.remove = function() {
   this.parentElement.removeChild(this);
 };
-NodeList.prototype.remove = HTMLCollection.prototype.remove = function () {
+NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
   for (var i = this.length - 1; i >= 0; i--) {
     if (this[i] && this[i].parentElement) {
       this[i].parentElement.removeChild(this[i]);
