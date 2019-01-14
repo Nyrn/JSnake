@@ -2,21 +2,23 @@ const pixelSize = 30;
 const tilesX = 25;
 const tilesY = 20;
 
+let instructions;
+let play;
+let movement;
 let speedTimer;
 let treatTimer;
 let coordsTimer;
-let movement;
 let coords = [];
-
-play = true;
 
 // GAME VARIABLES AND FUNCTIONS
 game = {
+  // Difficulty level (must be at least 1)
+  startLevel: 1,
   // Snake movement interval in milliseconds
-  startSpeed: 140,
-  // Snake speed timer interval in milliseconds
-  startSpeedTimer: 10000,
-  // Snake starting size
+  startSpeed: 120,
+  // Snake speed increaser timer interval in milliseconds
+  startSpeedTimer: 5000,
+  // Snake starting size (not including snake head)
   startSize: 3,
   // Snake starting direction
   startDirection: "UP",
@@ -30,23 +32,78 @@ game = {
   treatX: Math.floor(tilesX / 2) * pixelSize,
   // Treat vertical starting location
   treatY: pixelSize * 4,
-
   // Game board width in pixels
   width: tilesX * pixelSize,
   // Game board height in pixels
   height: tilesY * pixelSize,
-  // Game board border
-  border: "1px solid #1a1a1a",
+
+  // Snake head color
+  snakeHeadColor: "black",
+  // Snake body color
+  snakeBodyColor: "green",
+  // Treat color
+  treatColor: "olivedrab",
+  // Game board border, background and text color
   background: "white",
   text: "black",
+  border: "1px solid ",
+  boxShadow: "0 0 20px ",
+  colors: [
+    "#57bb8a",
+    "#63b682",
+    "#73b87e",
+    "#84bb7b",
+    "#94bd77",
+    "#a4c073",
+    "#b0be6e",
+    "#c4c56d",
+    "#d4c86a",
+    "#e2c965",
+    "#f5ce62",
+    "#f3c563",
+    "#e9b861",
+    "#e6ad61",
+    "#ecac67",
+    "#e9a268",
+    "#e79a69",
+    "#e5926b",
+    "#e2886c",
+    "#e0816d",
+    "#dd776e"
+  ],
 
+  // Instructions background and text color
+  instructionsColor: "white",
+  instructionsTextColor: "black",
+  instructionsBorder: "1px solid silver",
+  instructionsOpacity: "0.9",
+  // Speeds up the snake
+  changeLevel: level => {
+    this.level = level;
+    snake.speed = game.startSpeed - level * 2;
+    draw.changeColor(level);
+
+    if (play == true) {
+      speedTimer.resume();
+      clearInterval(movement);
+      movement = setInterval(snake.move, snake.speed);
+    }
+
+    console.log("Level: " + level + " Speed: " + snake.speed);
+
+  },
   // Start and stop the game with spacebar
   pause: () => {
     if (event.keyCode == 32) {
       if (play == true) {
         game.stop();
+        draw.instructions();
       } else if (play == false) {
         game.start();
+        if (instructions == true) {
+          document.getElementById("instructions").remove();
+          instructions = false;
+        }
       }
     }
   },
@@ -69,6 +126,11 @@ game = {
   },
   // Reset the game to initial state
   reset: () => {
+    if (score > best) {
+      best = score;
+    }
+    score = 0;
+    level = game.startLevel;
     snake.speed = game.startSpeed;
     snake.direction = game.startDirection;
     snake.x = game.snakeX;
@@ -83,11 +145,12 @@ game = {
   }
 };
 
+let score = 0;
+let best = 0;
+let level = game.startLevel;
+
 // SNAKE VARIABLES AND FUNCTIONS
 snake = {
-  color: "black", // Snake head color
-  childColor: "green", // Snake body color
-
   size: game.startSize,
   direction: game.startDirection,
   timer: game.startSpeedTimer,
@@ -118,14 +181,14 @@ snake = {
       snake.y >= game.height ||
       snake.y < 0
     ) {
-      console.log("RAN INTO A WALL");
+      // console.log("Ran into a wall");
       restart();
     }
 
     // Checks if snake head collides with body
     for (i = 0; i < coords.length; i++) {
       if (snake.x == coords[i].x && snake.y == coords[i].y) {
-        console.log("TOUCHED YOURSELF");
+        // console.log("Touched yourself");
         restart();
       }
     }
@@ -163,22 +226,6 @@ snake = {
       snake.direction = "DOWN";
     }
   },
-  // Speeds up the snake
-  changeSpeed: () => {
-    if (snake.speed >= 140) {
-      snake.speed -= 3;
-    } else if (snake.speed >= 120) {
-      snake.speed -= 2;
-    } else if (snake.speed > 100) {
-      snake.speed -= 1;
-    } else {
-      snake.speed -= 0;
-    }
-    speedTimer.resume();
-    clearInterval(movement);
-    movement = setInterval(snake.move, snake.speed);
-    console.log("Speed: " + snake.speed);
-  },
   // Effects of colliding with treat
   treat: () => {
     snake.size += 1;
@@ -199,9 +246,7 @@ snake = {
 
 //TREAT VARIABLES AND FUNCTIONS
 treat = {
-  color: "olivedrab",
-
-  nr: 0, // Number of treats
+  // Number of treats
   timer: game.startTreatTimer,
   x: game.treatX,
   y: game.treatY,
@@ -212,13 +257,13 @@ treat = {
     treat.x = Math.ceil(Math.random() * tilesX) * pixelSize - pixelSize;
     treat.y = Math.ceil(Math.random() * tilesY) * pixelSize - pixelSize;
 
-    // Runs the function again if treat collides with snake
+    // Generates a new treat if treat collides with snake body
     for (i = 0; i < coords.length; i++) {
       if (treat.x == coords[i].x && treat.y == coords[i].y) {
         treat.reTreat();
       }
     }
-
+    // Generates a new treat if treat collides with snake head
     if (treat.x == snake.x && treat.y == snake.y) {
       treat.reTreat();
     }
@@ -244,8 +289,125 @@ draw = {
     b.style.background = game.background;
     b.style.border = game.border;
     b.style.color = game.text;
+    b.style.boxShadow = game.boxShadow;
 
     document.body.appendChild(b);
+  },
+  instructions: () => {
+    let ins = document.createElement("div");
+    ins.setAttribute("id", "instructions");
+    ins.setAttribute(
+      "style",
+      "position:absolute; width:90%; height:90%; top:0; right:0; bottom:0; left:0; margin: auto; padding:5px; text-align:center; z-index: 100; border-radius:10%;"
+    );
+    ins.style.background = game.instructionsColor;
+    ins.style.color = game.instructionsTextColor;
+    ins.style.border = game.instructionsBorder;
+    ins.style.opacity = game.instructionsOpacity;
+
+    document.getElementById("game").appendChild(ins);
+    let insContainer = document.createElement("div");
+    insContainer.setAttribute("id", "instructions-container");
+    insContainer.setAttribute(
+      "style",
+      "position:absolute; width: max-content; height:max-content; right:0; bottom:0; top:0; left:0; margin: auto; padding:5px; text-align:center; z-index: 100;"
+    );
+    document.getElementById("instructions").appendChild(insContainer);
+    let insHow = document.createElement("h1");
+    insHow.setAttribute(
+      "style",
+      "width:max-content; height:max-content; border-bottom:1px solid silver; padding: 0.5rem; right:0; left:0; margin: auto;"
+    );
+    insHow.innerHTML = "HOW TO PLAY";
+    document.getElementById("instructions-container").appendChild(insHow);
+    // let insHowText0 = document.createElement("p");
+    // insHowText0.setAttribute(
+    //   "style",
+    //   "width:auto; margin:0 auto; padding: 0.5rem; margin-top:0.5rem;"
+    // );
+    // insHowText0.innerHTML =
+    //   "<strong>JSnake</strong> is a classical snake game.";
+    // document.getElementById("instructions-container").appendChild(insHowText0);
+    let insHowText1 = document.createElement("p");
+    insHowText1.setAttribute(
+      "style",
+      "width:auto; margin:0 auto; padding: 0.5rem; margin-top:0.5rem;"
+    );
+    insHowText1.innerHTML =
+      "<strong>JSnake</strong> is a classical snake game.";
+    document.getElementById("instructions-container").appendChild(insHowText1);
+    let insHowText2 = document.createElement("p");
+    insHowText2.setAttribute(
+      "style",
+      "width:auto; margin:0 auto; padding: 0.5rem;"
+    );
+    insHowText2.innerHTML = "";
+    document.getElementById("instructions-container").appendChild(insHowText2);
+
+    let insHowText3 = document.createElement("p");
+    insHowText3.setAttribute(
+      "style",
+      "width:auto; margin:0 auto; padding: 0.2rem;"
+    );
+    insHowText3.innerHTML =
+      "<strong>Move</strong> with <strong>ARROW KEYS</strong>.";
+    document.getElementById("instructions-container").appendChild(insHowText3);
+    let insHowText4 = document.createElement("p");
+    insHowText4.setAttribute(
+      "style",
+      "width:auto; margin:0 auto; padding: 0.2rem; margin-top:1rem;"
+    );
+    insHowText4.innerHTML =
+      "<strong>Pause</strong> and <strong>resume</strong> the game with <strong>SPACEBAR</strong>.";
+    document.getElementById("instructions-container").appendChild(insHowText4);
+    let insHowText5 = document.createElement("p");
+    insHowText5.setAttribute(
+      "style",
+      "width:auto; margin:0 auto; padding: 0.2rem; margin-top:1rem;"
+    );
+    insHowText5.innerHTML = "Press <strong>SPACEBAR</strong> to begin!";
+    document.getElementById("instructions-container").appendChild(insHowText5);
+    let insAbout = document.createElement("h1");
+    insAbout.setAttribute(
+      "style",
+      "width:max-content; margin:0 auto; border-bottom:1px solid silver; padding: 0.5rem; margin-top:2rem;"
+    );
+    insAbout.innerHTML = "About";
+    document.getElementById("instructions-container").appendChild(insAbout);
+    let insAbout1 = document.createElement("p");
+    insAbout1.setAttribute("style", "width:auto; bottom:0; margin:0 auto; padding: 1rem;");
+    insAbout1.innerHTML =
+      "Made with <strong>Javascript</strong>";
+    document.getElementById("instructions-container").appendChild(insAbout1);
+    let insAbout2 = document.createElement("a");
+    insAbout2.setAttribute("style", "width:auto; bottom:0; margin:0 auto; padding: 0; text-decoration:none;");
+    insAbout2.setAttribute("href", "https://github.com/Nyrn");
+    insAbout2.innerHTML =
+      "<i>by <strong>Nyrn</strong></i>";
+    document.getElementById("instructions-container").appendChild(insAbout2);
+
+    //Displays best score
+    let bestScore = document.createElement("div");
+    bestScore.setAttribute("id", "best-score");
+    bestScore.setAttribute(
+      "style",
+      "position:absolute; width: max-content; height:max-content; right:10%; bottom:5%; font-size:2rem; text-align:center; z-index: 100; "
+    );
+    bestScore.innerHTML = "Best: " + best;
+    document.getElementById("instructions").appendChild(bestScore);
+
+    //Displays the current level
+    let currentLevel = document.createElement("div");
+    currentLevel.setAttribute("id", "current-level");
+    currentLevel.setAttribute(
+      "style",
+      "position:absolute; width: max-content; height:max-content; left:10%; bottom:5%; font-size:2rem; text-align:center; z-index: 100; "
+    );
+    currentLevel.innerHTML = "Level: " + level;
+    document.getElementById("instructions").appendChild(currentLevel);
+
+    instructions = true;
+    play = false;
   },
   score: () => {
     let sc = document.createElement("div");
@@ -261,31 +423,17 @@ draw = {
   },
   updateScore: () => {
     let sc = document.getElementById("score");
-    if (score <= 10) {
-      score += 2;
-    } else if (score <= 20) {
-      score += 3;
-    } else if (score <= 40) {
-      score += 4;
-    } else if (score <= 60) {
-      score += 5;
-    } else if (score <= 80) {
-      score += 6;
-    } else if (score <= 120) {
-      score += 7;
-    } else if (score <= 150) {
-      score += 8;
-    } else if (score <= 180) {
-      score += 9;
-    } else if (score <= 210) {
-      score += 10;
-    } else if (score <= 240) {
-      score += 11;
-    } else {
-      score += 12;
-    }
+    score += Math.round((snake.size / 2) * level);
 
     sc.innerHTML = score;
+  },
+  changeColor: level => {
+    let b = document.getElementById("game");
+    // let sc = document.getElementById("score");
+
+    b.style.border = game.border + game.colors[level - 1];
+    b.style.boxShadow = game.boxShadow + game.colors[level - 1];
+    // sc.style.color = game.colors[game.level];
   },
   // Handles creating the snake head
   snakeHead: () => {
@@ -297,7 +445,7 @@ draw = {
     );
     s.style.width = pixelSize + "px";
     s.style.height = pixelSize + "px";
-    s.style.background = snake.color;
+    s.style.background = game.snakeHeadColor;
     s.style.border = snake.border;
 
     s.style.left = snake.x + "px";
@@ -312,7 +460,7 @@ draw = {
     s.setAttribute("style", "position:absolute; border-radius:15%");
     s.style.width = pixelSize + "px";
     s.style.height = pixelSize + "px";
-    s.style.background = snake.childColor;
+    s.style.background = game.snakeBodyColor;
     if (snake.direction == "UP") {
       s.style.left = snake.x + "px";
       s.style.bottom = snake.y - pixelSize + "px";
@@ -339,9 +487,8 @@ draw = {
     t.setAttribute("style", "position:absolute; border-radius:50%;");
     t.style.width = pixelSize + "px";
     t.style.height = pixelSize + "px";
-    t.style.background = treat.color;
+    t.style.background = game.treatColor;
 
-    treat.nr = treat.startNr;
     treat.x = game.treatX;
     treat.y = game.treatY;
 
@@ -380,14 +527,17 @@ treatTimer = new Timer(() => {
 
 // Snake speed timer
 speedTimer = new Timer(() => {
-  snake.changeSpeed();
+  if (level < game.colors.length) {
+    level += 1;
+    game.changeLevel(level);
+  }
 }, snake.timer);
 
 // Removes DOM elements
-Element.prototype.remove = function() {
+Element.prototype.remove = function () {
   this.parentElement.removeChild(this);
 };
-NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
+NodeList.prototype.remove = HTMLCollection.prototype.remove = function () {
   for (var i = this.length - 1; i >= 0; i--) {
     if (this[i] && this[i].parentElement) {
       this[i].parentElement.removeChild(this[i]);
@@ -395,7 +545,7 @@ NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
   }
 };
 
-// Adds coords to all snake bits (unused)
+// Adds coords to all snake bits (currently unused)
 addAllCoords = () => {
   let sp = document.getElementsByClassName("snake-part");
   if (coords.length > 0) {
@@ -405,8 +555,8 @@ addAllCoords = () => {
     let x = parseInt(sp[i].style.left, 10);
     let y = parseInt(sp[i].style.bottom, 10);
     snake.coordinate(x, y);
-    // console.log("All coords added");
   }
+  // console.log("All coords added");
 };
 
 restart = () => {
@@ -415,10 +565,12 @@ restart = () => {
 };
 
 initialize = () => {
+  game.changeLevel(level);
+  draw.instructions();
   draw.score();
   draw.snakeHead();
   draw.treat();
-  game.start();
+  game.stop();
   console.log("Initialized!");
 };
 
@@ -427,4 +579,5 @@ window.onload = () => {
 };
 
 draw.game();
+
 initialize();
