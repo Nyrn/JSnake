@@ -14,10 +14,10 @@ let coords = [];
 game = {
   // Difficulty level (must be at least 1)
   startLevel: 1,
-  // Snake movement interval in milliseconds
+  // Snake movement by pixelSize interval in milliseconds
   startSpeed: 120,
-  // Snake speed increaser timer interval in milliseconds
-  startSpeedTimer: 5000,
+  // Level change interval in milliseconds
+  levelInterval: 5000,
   // Snake starting size (not including snake head)
   startSize: 3,
   // Snake starting direction
@@ -153,7 +153,7 @@ let level = game.startLevel;
 snake = {
   size: game.startSize,
   direction: game.startDirection,
-  timer: game.startSpeedTimer,
+  timer: game.levelInterval,
   speed: game.startSpeed,
   x: game.snakeX,
   y: game.snakeY,
