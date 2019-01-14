@@ -17,7 +17,7 @@ game = {
   // Snake movement by pixelSize interval in milliseconds
   startSpeed: 120,
   // Level change interval in milliseconds
-  levelInterval: 5000,
+  levelInterval: 10000,
   // Snake starting size (not including snake head)
   startSize: 3,
   // Snake starting direction
