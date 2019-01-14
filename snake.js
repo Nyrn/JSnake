@@ -2,10 +2,10 @@ const pixelSize = 30;
 const tilesX = 25;
 const tilesY = 20;
 
-let instructions;
+let overlay;
 let play;
 let movement;
-let speedTimer;
+let levelTimer;
 let treatTimer;
 let coordsTimer;
 let coords = [];
@@ -15,23 +15,23 @@ game = {
   // Difficulty level (must be at least 1)
   startLevel: 1,
   // Snake movement by pixelSize interval in milliseconds
-  startSpeed: 120,
-  // Level change interval in milliseconds
-  levelInterval: 10000,
+  startSpeed: 130,
   // Snake starting size (not including snake head)
-  startSize: 3,
+  startSize: 2,
   // Snake starting direction
   startDirection: "UP",
   // Snake horizontal starting location
   snakeX: Math.floor(tilesX / 2) * pixelSize,
   // Snake vertical starting location
   snakeY: 0,
+  // Level change interval in milliseconds
+  levelInterval: 12000,
   // Treat relocation interval in milliseconds
-  startTreatTimer: 15000,
+  treatTimer: 15000,
   // Treat horizontal starting location
-  treatX: Math.floor(tilesX / 2) * pixelSize,
+  treatX: Math.ceil(Math.random() * tilesX) * pixelSize - pixelSize, //Math.floor(tilesX / 2) * pixelSize,
   // Treat vertical starting location
-  treatY: pixelSize * 4,
+  treatY: Math.ceil(Math.random() * tilesY) * pixelSize - pixelSize, //pixelSize * 4,
   // Game board width in pixels
   width: tilesX * pixelSize,
   // Game board height in pixels
@@ -72,7 +72,7 @@ game = {
     "#dd776e"
   ],
 
-  // Instructions background and text color
+  // overlay background and text color
   instructionsColor: "white",
   instructionsTextColor: "black",
   instructionsBorder: "1px solid silver",
@@ -84,7 +84,7 @@ game = {
     draw.changeColor(level);
 
     if (play == true) {
-      speedTimer.resume();
+      levelTimer.resume();
       clearInterval(movement);
       movement = setInterval(snake.move, snake.speed);
     }
@@ -97,12 +97,12 @@ game = {
     if (event.keyCode == 32) {
       if (play == true) {
         game.stop();
-        draw.instructions();
+        draw.overlay();
       } else if (play == false) {
         game.start();
-        if (instructions == true) {
-          document.getElementById("instructions").remove();
-          instructions = false;
+        if (overlay == true) {
+          document.getElementById("overlay").remove();
+          overlay = false;
         }
       }
     }
@@ -113,7 +113,7 @@ game = {
     movement = setInterval(snake.move, snake.speed);
     document.addEventListener("keydown", snake.changeDirection);
     treatTimer.resume();
-    speedTimer.resume();
+    levelTimer.resume();
     play = true;
   },
   // Pause the game
@@ -121,7 +121,7 @@ game = {
     clearInterval(movement);
     document.removeEventListener("keydown", snake.changeDirection);
     treatTimer.pause();
-    speedTimer.pause();
+    levelTimer.pause();
     play = false;
   },
   // Reset the game to initial state
@@ -247,7 +247,7 @@ snake = {
 //TREAT VARIABLES AND FUNCTIONS
 treat = {
   // Number of treats
-  timer: game.startTreatTimer,
+  timer: game.treatTimer,
   x: game.treatX,
   y: game.treatY,
 
@@ -293,98 +293,100 @@ draw = {
 
     document.body.appendChild(b);
   },
-  instructions: () => {
-    let ins = document.createElement("div");
-    ins.setAttribute("id", "instructions");
-    ins.setAttribute(
+  overlay: () => {
+    //Container
+    let ov = document.createElement("div");
+    ov.setAttribute("id", "overlay");
+    ov.setAttribute(
       "style",
       "position:absolute; width:90%; height:90%; top:0; right:0; bottom:0; left:0; margin: auto; padding:5px; text-align:center; z-index: 100; border-radius:10%;"
     );
-    ins.style.background = game.instructionsColor;
-    ins.style.color = game.instructionsTextColor;
-    ins.style.border = game.instructionsBorder;
-    ins.style.opacity = game.instructionsOpacity;
+    ov.style.background = game.instructionsColor;
+    ov.style.color = game.instructionsTextColor;
+    ov.style.border = game.instructionsBorder;
+    ov.style.opacity = game.instructionsOpacity;
 
-    document.getElementById("game").appendChild(ins);
-    let insContainer = document.createElement("div");
-    insContainer.setAttribute("id", "instructions-container");
-    insContainer.setAttribute(
+    document.getElementById("game").appendChild(ov);
+    //Container for overlay
+    let ovContainer = document.createElement("div");
+    ovContainer.setAttribute("id", "overlay-container");
+    ovContainer.setAttribute(
       "style",
       "position:absolute; width: max-content; height:max-content; right:0; bottom:0; top:0; left:0; margin: auto; padding:5px; text-align:center; z-index: 100;"
     );
-    document.getElementById("instructions").appendChild(insContainer);
-    let insHow = document.createElement("h1");
-    insHow.setAttribute(
+    document.getElementById("overlay").appendChild(ovContainer);
+    //overlay "How to play" h1
+    let ovHow = document.createElement("h1");
+    ovHow.setAttribute(
       "style",
       "width:max-content; height:max-content; border-bottom:1px solid silver; padding: 0.5rem; right:0; left:0; margin: auto;"
     );
-    insHow.innerHTML = "HOW TO PLAY";
-    document.getElementById("instructions-container").appendChild(insHow);
-    // let insHowText0 = document.createElement("p");
-    // insHowText0.setAttribute(
-    //   "style",
-    //   "width:auto; margin:0 auto; padding: 0.5rem; margin-top:0.5rem;"
-    // );
-    // insHowText0.innerHTML =
-    //   "<strong>JSnake</strong> is a classical snake game.";
-    // document.getElementById("instructions-container").appendChild(insHowText0);
-    let insHowText1 = document.createElement("p");
-    insHowText1.setAttribute(
+    ovHow.innerHTML = "HOW TO PLAY";
+    document.getElementById("overlay-container").appendChild(ovHow);
+    // overlay first p
+    let ovHowText1 = document.createElement("p");
+    ovHowText1.setAttribute(
       "style",
       "width:auto; margin:0 auto; padding: 0.5rem; margin-top:0.5rem;"
     );
-    insHowText1.innerHTML =
+    ovHowText1.innerHTML =
       "<strong>JSnake</strong> is a classical snake game.";
-    document.getElementById("instructions-container").appendChild(insHowText1);
-    let insHowText2 = document.createElement("p");
-    insHowText2.setAttribute(
+    document.getElementById("overlay-container").appendChild(ovHowText1);
+    // overlay second p
+    let ovHowText2 = document.createElement("p");
+    ovHowText2.setAttribute(
       "style",
       "width:auto; margin:0 auto; padding: 0.5rem;"
     );
-    insHowText2.innerHTML = "";
-    document.getElementById("instructions-container").appendChild(insHowText2);
-
-    let insHowText3 = document.createElement("p");
-    insHowText3.setAttribute(
+    ovHowText2.innerHTML = "";
+    document.getElementById("overlay-container").appendChild(ovHowText2);
+    // overlay third p
+    let ovHowText3 = document.createElement("p");
+    ovHowText3.setAttribute(
       "style",
       "width:auto; margin:0 auto; padding: 0.2rem;"
     );
-    insHowText3.innerHTML =
+    ovHowText3.innerHTML =
       "<strong>Move</strong> with <strong>ARROW KEYS</strong>.";
-    document.getElementById("instructions-container").appendChild(insHowText3);
-    let insHowText4 = document.createElement("p");
-    insHowText4.setAttribute(
+    document.getElementById("overlay-container").appendChild(ovHowText3);
+    // overlay fourth p
+    let ovHowText4 = document.createElement("p");
+    ovHowText4.setAttribute(
       "style",
       "width:auto; margin:0 auto; padding: 0.2rem; margin-top:1rem;"
     );
-    insHowText4.innerHTML =
+    ovHowText4.innerHTML =
       "<strong>Pause</strong> and <strong>resume</strong> the game with <strong>SPACEBAR</strong>.";
-    document.getElementById("instructions-container").appendChild(insHowText4);
-    let insHowText5 = document.createElement("p");
-    insHowText5.setAttribute(
+    document.getElementById("overlay-container").appendChild(ovHowText4);
+    // Overlay fifth p
+    let ovHowTex5 = document.createElement("p");
+    ovHowTex5.setAttribute(
       "style",
       "width:auto; margin:0 auto; padding: 0.2rem; margin-top:1rem;"
     );
-    insHowText5.innerHTML = "Press <strong>SPACEBAR</strong> to begin!";
-    document.getElementById("instructions-container").appendChild(insHowText5);
-    let insAbout = document.createElement("h1");
-    insAbout.setAttribute(
+    ovHowTex5.innerHTML = "Press <strong>SPACEBAR</strong> to begin!";
+    document.getElementById("overlay-container").appendChild(ovHowTex5);
+    // Overlay About h1
+    let ovAbout = document.createElement("h1");
+    ovAbout.setAttribute(
       "style",
       "width:max-content; margin:0 auto; border-bottom:1px solid silver; padding: 0.5rem; margin-top:2rem;"
     );
-    insAbout.innerHTML = "About";
-    document.getElementById("instructions-container").appendChild(insAbout);
-    let insAbout1 = document.createElement("p");
-    insAbout1.setAttribute("style", "width:auto; bottom:0; margin:0 auto; padding: 1rem;");
-    insAbout1.innerHTML =
+    ovAbout.innerHTML = "About";
+    document.getElementById("overlay-container").appendChild(ovAbout);
+    // Overlay About p
+    let ovAbout1 = document.createElement("p");
+    ovAbout1.setAttribute("style", "width:auto; bottom:0; margin:0 auto; padding: 1rem;");
+    ovAbout1.innerHTML =
       "Made with <strong>Javascript</strong>";
-    document.getElementById("instructions-container").appendChild(insAbout1);
-    let insAbout2 = document.createElement("a");
-    insAbout2.setAttribute("style", "width:auto; bottom:0; margin:0 auto; padding: 0; text-decoration:none;");
-    insAbout2.setAttribute("href", "https://github.com/Nyrn");
-    insAbout2.innerHTML =
+    document.getElementById("overlay-container").appendChild(ovAbout1);
+    // Overlay About a with link
+    let ovAbout2 = document.createElement("a");
+    ovAbout2.setAttribute("style", "width:auto; bottom:0; margin:0 auto; padding: 0; text-decoration:none;");
+    ovAbout2.setAttribute("href", "https://github.com/Nyrn");
+    ovAbout2.innerHTML =
       "<i>by <strong>Nyrn</strong></i>";
-    document.getElementById("instructions-container").appendChild(insAbout2);
+    document.getElementById("overlay-container").appendChild(ovAbout2);
 
     //Displays best score
     let bestScore = document.createElement("div");
@@ -394,7 +396,7 @@ draw = {
       "position:absolute; width: max-content; height:max-content; right:10%; bottom:5%; font-size:2rem; text-align:center; z-index: 100; "
     );
     bestScore.innerHTML = "Best: " + best;
-    document.getElementById("instructions").appendChild(bestScore);
+    document.getElementById("overlay").appendChild(bestScore);
 
     //Displays the current level
     let currentLevel = document.createElement("div");
@@ -404,11 +406,12 @@ draw = {
       "position:absolute; width: max-content; height:max-content; left:10%; bottom:5%; font-size:2rem; text-align:center; z-index: 100; "
     );
     currentLevel.innerHTML = "Level: " + level;
-    document.getElementById("instructions").appendChild(currentLevel);
+    document.getElementById("overlay").appendChild(currentLevel);
 
-    instructions = true;
+    overlay = true;
     play = false;
   },
+  // Score DOM element
   score: () => {
     let sc = document.createElement("div");
     sc.setAttribute("id", "score");
@@ -421,19 +424,19 @@ draw = {
     score = 0;
     sc.innerHTML = score;
   },
+  // Updates current score
   updateScore: () => {
     let sc = document.getElementById("score");
     score += Math.ceil((level / 2) * snake.size);
 
     sc.innerHTML = score;
   },
+  // Changes the color of board border and box-shadow
   changeColor: level => {
     let b = document.getElementById("game");
-    // let sc = document.getElementById("score");
 
     b.style.border = game.border + game.colors[level - 1];
     b.style.boxShadow = game.boxShadow + game.colors[level - 1];
-    // sc.style.color = game.colors[game.level];
   },
   // Handles creating the snake head
   snakeHead: () => {
@@ -526,7 +529,7 @@ treatTimer = new Timer(() => {
 }, treat.timer);
 
 // Snake speed timer
-speedTimer = new Timer(() => {
+levelTimer = new Timer(() => {
   if (level < game.colors.length) {
     level += 1;
     game.changeLevel(level);
@@ -545,7 +548,7 @@ NodeList.prototype.remove = HTMLCollection.prototype.remove = function () {
   }
 };
 
-// Adds coords to all snake bits (currently unused)
+// Adds coords to all snake bits (unused)
 addAllCoords = () => {
   let sp = document.getElementsByClassName("snake-part");
   if (coords.length > 0) {
@@ -566,7 +569,7 @@ restart = () => {
 
 initialize = () => {
   game.changeLevel(level);
-  draw.instructions();
+  draw.overlay();
   draw.score();
   draw.snakeHead();
   draw.treat();
