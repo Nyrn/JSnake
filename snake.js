@@ -423,7 +423,7 @@ draw = {
   },
   updateScore: () => {
     let sc = document.getElementById("score");
-    score += Math.round((snake.size / 2) * level);
+    score += Math.ceil((level / 2) * snake.size);
 
     sc.innerHTML = score;
   },
