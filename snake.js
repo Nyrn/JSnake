@@ -14,9 +14,9 @@ game = {
   // Difficulty level (must be at least 1)
   startLevel: 1,
   // Snake movement by pixelSize interval in milliseconds
-  startSpeed: 130,
+  startSpeed: 140,
   // Snake starting size (not including snake head)
-  startSize: 2,
+  startSize: 1,
   // Snake starting direction
   startDirection: "UP",
   // Snake horizontal starting location
@@ -24,7 +24,7 @@ game = {
   // Snake vertical starting location
   snakeY: 0,
   // Level change interval in milliseconds
-  levelInterval: 12000,
+  levelInterval: 10000,
   // Treat relocation interval in milliseconds
   treatTimer: 15000,
   // Treat horizontal starting location
@@ -72,10 +72,10 @@ game = {
   ],
 
   // overlay background and text color
-  instructionsColor: "white",
-  instructionsTextColor: "black",
-  instructionsBorder: "1px solid silver",
-  instructionsOpacity: "0.9",
+  overlayColor: "white",
+  overlayTextColor: "black",
+  overlayBorder: "1px solid silver",
+  overlayOpacity: "0.9",
   // Speeds up the snake
   changeLevel: level => {
     this.level = level;
@@ -299,10 +299,10 @@ draw = {
       "style",
       "position:absolute; width:90%; height:90%; top:0; right:0; bottom:0; left:0; margin: auto; padding:5px; text-align:center; z-index: 100; border-radius:10%;"
     );
-    ov.style.background = game.instructionsColor;
-    ov.style.color = game.instructionsTextColor;
-    ov.style.border = game.instructionsBorder;
-    ov.style.opacity = game.instructionsOpacity;
+    ov.style.background = game.overlayColor;
+    ov.style.color = game.overlayTextColor;
+    ov.style.border = game.overlayBorder;
+    ov.style.opacity = game.overlayOpacity;
 
     document.getElementById("game").appendChild(ov);
     //Container for overlay
@@ -583,5 +583,4 @@ window.onload = () => {
 };
 
 draw.game();
-
 initialize();
