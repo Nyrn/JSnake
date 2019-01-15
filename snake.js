@@ -404,9 +404,14 @@ draw = {
       "style",
       "position:absolute; width: max-content; height:max-content; right:10%; bottom:5%; font-size:2rem; text-align:center; z-index: 100; "
     );
-    bestScore.style.color = game.colors[bestLevel - 1];
-    bestScore.innerHTML = "Best: " + best;
+    bestScore.innerHTML = "Best: ";
+
+    let bestScoreNum = document.createElement("span");
+    bestScoreNum.style.color = game.colors[bestLevel - 1];
+    bestScoreNum.innerHTML = best;
+
     document.getElementById("overlay").appendChild(bestScore);
+    document.getElementById("best-score").appendChild(bestScoreNum);
 
     //Displays the current level
     let currentLevel = document.createElement("div");
@@ -415,9 +420,14 @@ draw = {
       "style",
       "position:absolute; width: max-content; height:max-content; left:10%; bottom:5%; font-size:2rem; text-align:center; z-index: 100; "
     );
-    currentLevel.style.color = game.colors[level - 1];
-    currentLevel.innerHTML = "Level: " + level;
+    currentLevel.innerHTML = "Level: ";
+
+    let currentLevelNum = document.createElement("span");
+    currentLevelNum.style.color = game.colors[level - 1];
+    currentLevelNum.innerHTML = level;
+
     document.getElementById("overlay").appendChild(currentLevel);
+    document.getElementById("current-level").appendChild(currentLevelNum);
 
     overlay = true;
     play = false;
