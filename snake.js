@@ -23,8 +23,11 @@ game = {
   snakeX: Math.floor(tilesX / 2) * pixelSize,
   // Snake vertical starting location
   snakeY: 0,
+  // Level snake speed interval reduction in milliseconds
+  // Runs length of game.colors array times (currently 21)
+  levelSpeed: 2,
   // Level change interval in milliseconds
-  levelInterval: 10000,
+  levelInterval: 12000,
   // Treat relocation interval in milliseconds
   treatTimer: 15000,
   // Treat horizontal starting location
@@ -42,11 +45,12 @@ game = {
   snakeBodyColor: "green",
   // Treat color
   treatColor: "olivedrab",
-  // Game board border, background and text color
+  // Board background ,text color, border
   background: "white",
   text: "black",
   border: "1px solid ",
   boxShadow: "0 0 20px ",
+  // Board border and box shadow colors
   colors: [
     "#57bb8a",
     "#63b682",
@@ -71,16 +75,15 @@ game = {
     "#dd776e"
   ],
 
-  // overlay background and text color
+  // Overlay background, text color, border, opacity
   overlayColor: "white",
   overlayTextColor: "black",
   overlayBorder: "1px solid silver",
   overlayOpacity: "0.9",
   // Speeds up the snake
-  changeLevel: level => {
-    this.level = level;
-    snake.speed = game.startSpeed - level * 2;
-    draw.changeColor(level);
+  updateLevel: () => {
+    snake.speed = game.startSpeed - level * game.levelSpeed;
+    draw.updateColor();
 
     if (play == true) {
       levelTimer.resume();
@@ -109,7 +112,7 @@ game = {
   start: () => {
     clearInterval(movement);
     movement = setInterval(snake.move, snake.speed);
-    document.addEventListener("keydown", snake.changeDirection);
+    document.addEventListener("keydown", snake.directionHandler);
     treatTimer.resume();
     levelTimer.resume();
     play = true;
@@ -117,15 +120,16 @@ game = {
   // Pause the game
   stop: () => {
     clearInterval(movement);
-    document.removeEventListener("keydown", snake.changeDirection);
+    document.removeEventListener("keydown", snake.directionHandler);
     treatTimer.pause();
     levelTimer.pause();
     play = false;
   },
   // Reset the game to initial state
   reset: () => {
-    if (score > best) {
+    if (best < score) {
       best = score;
+      bestLevel = level;
     }
     score = 0;
     level = game.startLevel;
@@ -146,6 +150,7 @@ game = {
 let score = 0;
 let best = 0;
 let level = game.startLevel;
+let bestLevel = game.startLevel;
 
 // SNAKE VARIABLES AND FUNCTIONS
 snake = {
@@ -213,7 +218,7 @@ snake = {
     }
   },
   // Snake movement direction handler
-  changeDirection: event => {
+  directionHandler: event => {
     if (event.keyCode == 38 && snake.direction != "DOWN") {
       snake.direction = "UP";
     } else if (event.keyCode == 39 && snake.direction != "LEFT") {
@@ -266,9 +271,12 @@ treat = {
       treat.reTreat();
     }
 
+    // Puts treat in generated location
     t.style.left = treat.x + "px";
     t.style.bottom = treat.y + "px";
+
     treatTimer.resume();
+
     // console.log("Treat X: " + treat.x + " Y: " + treat.y);
   }
 };
@@ -396,6 +404,7 @@ draw = {
       "style",
       "position:absolute; width: max-content; height:max-content; right:10%; bottom:5%; font-size:2rem; text-align:center; z-index: 100; "
     );
+    bestScore.style.color = game.colors[bestLevel - 1];
     bestScore.innerHTML = "Best: " + best;
     document.getElementById("overlay").appendChild(bestScore);
 
@@ -406,6 +415,7 @@ draw = {
       "style",
       "position:absolute; width: max-content; height:max-content; left:10%; bottom:5%; font-size:2rem; text-align:center; z-index: 100; "
     );
+    currentLevel.style.color = game.colors[level - 1];
     currentLevel.innerHTML = "Level: " + level;
     document.getElementById("overlay").appendChild(currentLevel);
 
@@ -432,8 +442,8 @@ draw = {
 
     sc.innerHTML = score;
   },
-  // Changes the color of board border and box-shadow
-  changeColor: level => {
+  // Updates the color of board border and box-shadow
+  updateColor: () => {
     let b = document.getElementById("game");
 
     b.style.border = game.border + game.colors[level - 1];
@@ -533,7 +543,7 @@ treatTimer = new Timer(() => {
 levelTimer = new Timer(() => {
   if (level < game.colors.length) {
     level += 1;
-    game.changeLevel(level);
+    game.updateLevel();
   }
 }, snake.timer);
 
@@ -569,9 +579,9 @@ restart = () => {
 };
 
 initialize = () => {
-  game.changeLevel(level);
   draw.overlay();
   draw.score();
+  game.updateLevel();
   draw.snakeHead();
   draw.treat();
   game.stop();
