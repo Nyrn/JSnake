@@ -184,14 +184,12 @@ snake = {
       snake.y >= game.height ||
       snake.y < 0
     ) {
-      // console.log("Ran into a wall");
       restart();
     }
 
     // Checks if snake head collides with body
     for (i = 0; i < coords.length; i++) {
       if (snake.x == coords[i].x && snake.y == coords[i].y) {
-        // console.log("Touched yourself");
         restart();
       }
     }
@@ -200,8 +198,6 @@ snake = {
 
     s.style.left = snake.x + "px";
     s.style.bottom = snake.y + "px";
-    // console.log("Snake X: " + snake.x + " Y: " + snake.y);
-    // console.log(coords);
   },
   // Creates and removes snake parts if necessary
   draw: () => {
@@ -243,15 +239,16 @@ snake = {
       x: this.x,
       y: this.y
     });
-    // console.log("Added coords " + "X: " + x + " Y: " + y);
   }
 };
 
 //TREAT VARIABLES AND FUNCTIONS
 treat = {
-  // Number of treats
+  // Treat relocation interval in milliseconds
   timer: game.treatTimer,
+  // Treat horizontal position
   x: game.treatX,
+  // Treat vertical position
   y: game.treatY,
 
   // Generates a new treat in a random location
@@ -276,8 +273,6 @@ treat = {
     t.style.bottom = treat.y + "px";
 
     treatTimer.resume();
-
-    // console.log("Treat X: " + treat.x + " Y: " + treat.y);
   }
 };
 
@@ -321,7 +316,7 @@ draw = {
       "position:absolute; width: max-content; height:max-content; right:0; bottom:0; top:0; left:0; margin: auto; padding:5px; text-align:center; z-index: 100;"
     );
     document.getElementById("overlay").appendChild(ovContainer);
-    //overlay "How to play" h1
+    //Overlay "How to play" h1
     let ovHow = document.createElement("h1");
     ovHow.setAttribute(
       "style",
@@ -329,7 +324,7 @@ draw = {
     );
     ovHow.innerHTML = "HOW TO PLAY";
     document.getElementById("overlay-container").appendChild(ovHow);
-    // overlay first p
+    // Overlay first p
     let ovHowText1 = document.createElement("p");
     ovHowText1.setAttribute(
       "style",
@@ -337,7 +332,7 @@ draw = {
     );
     ovHowText1.innerHTML = "<strong>JSnake</strong> is a classical snake game.";
     document.getElementById("overlay-container").appendChild(ovHowText1);
-    // overlay second p
+    // Overlay second p
     let ovHowText2 = document.createElement("p");
     ovHowText2.setAttribute(
       "style",
@@ -345,7 +340,7 @@ draw = {
     );
     ovHowText2.innerHTML = "";
     document.getElementById("overlay-container").appendChild(ovHowText2);
-    // overlay third p
+    // Overlay third p
     let ovHowText3 = document.createElement("p");
     ovHowText3.setAttribute(
       "style",
@@ -354,7 +349,7 @@ draw = {
     ovHowText3.innerHTML =
       "<strong>Move</strong> with <strong>ARROW KEYS</strong>.";
     document.getElementById("overlay-container").appendChild(ovHowText3);
-    // overlay fourth p
+    // Overlay fourth p
     let ovHowText4 = document.createElement("p");
     ovHowText4.setAttribute(
       "style",
@@ -397,7 +392,7 @@ draw = {
     ovAbout2.innerHTML = "<i>by <strong>Nyrn</strong></i>";
     document.getElementById("overlay-container").appendChild(ovAbout2);
 
-    //Displays best score
+    // Displays best score
     let bestScore = document.createElement("div");
     bestScore.setAttribute("id", "best-score");
     bestScore.setAttribute(
@@ -475,7 +470,6 @@ draw = {
     s.style.left = snake.x + "px";
     s.style.bottom = snake.y + "px";
     document.getElementById("game").appendChild(s);
-    // console.log("Snake drawn!");
   },
   // Handles creating snake body parts
   snakeBit: () => {
@@ -520,7 +514,6 @@ draw = {
     t.style.bottom = treat.y + "px";
 
     document.getElementById("game").appendChild(t);
-    // console.log("Treat X: " + treat.x + " Treat Y: " + treat.y);
   }
 };
 
@@ -580,7 +573,6 @@ addAllCoords = () => {
     let y = parseInt(sp[i].style.bottom, 10);
     snake.coordinate(x, y);
   }
-  // console.log("All coords added");
 };
 
 restart = () => {
@@ -595,7 +587,6 @@ initialize = () => {
   draw.snakeHead();
   draw.treat();
   game.stop();
-  console.log("Initialized!");
 };
 
 window.onload = () => {
@@ -603,4 +594,5 @@ window.onload = () => {
 };
 
 draw.game();
+
 initialize();
